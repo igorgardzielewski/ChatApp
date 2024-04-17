@@ -6,38 +6,44 @@
 //
 
 import SwiftUI
-
+import FirebaseFirestore
 struct ContentView: View {
+    @ObservedObject private var viewModel = UsersViewModel()
+    @AppStorage("uid") var userID: String = ""
+    @ObservedObject private var FriendsModel = UsersFriendsViewModel()
     @Binding var presentSideMenu: Bool
-    @Binding var filter_text: String
+    @State private var filter_text=""
+    @State private var chat_okno: Bool = false
+    @State private var isShowingNewPage = false
+    @State private var me: Me?
     var body: some View {
-        VStack(alignment:.leading) {
-            HStack{
-                Button{
-                    presentSideMenu.toggle()
-                }label:{
-                    Image("more")
-                        .resizable()
-                        .frame(width: 32,height: 32)
-                }
-                .padding(.all)
-                TextField("filter", text: $filter_text)
-                    .textInputAutocapitalization(.never)
+            VStack(alignment:.leading) {
+                HStack{
+                    Button{
+                        presentSideMenu.toggle()
+                    }label:{
+                        Image("more")
+                            .resizable()
+                            .frame(width: 32,height: 32)
+                    }
                     .padding(.all)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(.gray.opacity(0.5), lineWidth: 2)
-                    )
-                    .padding(.trailing)
-            }
+                    TextField("filter", text: $filter_text)
+                        .textInputAutocapitalization(.never)
+                        .padding(.all)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(.gray.opacity(0.5), lineWidth: 2)
+                        )
+                        .padding(.trailing)
+                }
                 ScrollView(.horizontal,showsIndicators: false) {
                     HStack{
-                        ForEach(0..<10) { index in
-                            user(photo: "user_photo",
-                                 text: "Igor")
-                            .padding(.top)
-                            .padding(.leading)
-                            .padding(.trailing)
+                        ForEach(FriendsModel.users) { index in
+                                user(photo: "user_photo",
+                                     text: index.name)
+                                .padding(.top)
+                                .padding(.leading)
+                                .padding(.trailing)
                         }
                     }
                     Divider()
@@ -46,14 +52,33 @@ struct ContentView: View {
                 Spacer()
                 ScrollView(showsIndicators:false) {
                     ForEach(0..<10) { _ in
-                        thread(username: "Igor Gardzielewski", img: "person", thread_name: "Projekt KCK")
-                    }
-                }
+                                        Button(action: {
+                                            isShowingNewPage.toggle() // Po kliknięciu przycisku zmieniamy stan, aby wyświetlić nową stronę
+                                            chat_okno.toggle()
+                                        }) {
+                                            thread(username: "Igor Gardzielewski", img: "person", thread_name: "Watek")
+                                                .foregroundColor(.black)
+                                        }
+                                    }
+                              }
                 Spacer()
+            }
+            .ignoresSafeArea(.all)
+            .padding(.top)
+            .sheet(isPresented: $isShowingNewPage) {
+                        chat_view()
+            }
+            .onAppear() {
+                if self.me == nil {
+                     fetchUser(byUID: userID) { user in
+                         self.me = user
+                         FriendsModel.fetchUserData(uids: user?.friends ?? [])
+                     }
+                 }
+            
+            }
+
         }
-        .ignoresSafeArea(.all)
-        .padding(.top)
-    }
 }
 struct thread: View {
     let username: String

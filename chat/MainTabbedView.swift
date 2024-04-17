@@ -8,21 +8,22 @@
 import SwiftUI
 
 struct MainTabbedView: View {
-    
+    @State private var logged = true
     @State var presentSideMenu = false
     @State var selectedSideMenuTab = 0
-    @State var filtr_text = ""
     var body: some View {
         ZStack{
             if selectedSideMenuTab == 0
             {
-                ContentView(presentSideMenu: $presentSideMenu,filter_text: $filtr_text)
+                ContentView(presentSideMenu: $presentSideMenu)
             }
             if selectedSideMenuTab == 1
             {
                 Profile(presentSideMenu: $presentSideMenu)
+                    .transition(.move(edge: .bottom))
             }
             SideMenu(isShowing: $presentSideMenu, content: AnyView(SideMenuView(selectedSideMenuTab: $selectedSideMenuTab, presentSideMenu: $presentSideMenu)))
+
         }
     }
 }

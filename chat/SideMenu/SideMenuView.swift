@@ -1,9 +1,10 @@
 import SwiftUI
+import FirebaseAuth
 struct SideMenuView: View {
-    
     @Binding var selectedSideMenuTab: Int
     @Binding var presentSideMenu: Bool
-    
+    @State private var logged = true
+    @AppStorage("uid") var userID: String = ""
     var body: some View {
         HStack {
             
@@ -17,14 +18,12 @@ struct SideMenuView: View {
                     ProfileImageView()
                         .frame(height: 140)
                         .padding(.bottom, 30)
-                    
-                    ForEach(SideMenuRowType.allCases, id: \.self){ row in
-                        RowView(isSelected: selectedSideMenuTab == row.rawValue, imageName: row.iconName, title: row.title) {
-                            selectedSideMenuTab = row.rawValue
-                            presentSideMenu.toggle()
+                        ForEach(SideMenuRowType.allCases, id: \.self){ row in
+                                RowView(isSelected: selectedSideMenuTab == row.rawValue, imageName: row.iconName, title: row.title) {
+                                    selectedSideMenuTab = row.rawValue
+                                    presentSideMenu.toggle()
+                                }
                         }
-                    }
-                    
                     Spacer()
                 }
                 .padding(.top, 100)

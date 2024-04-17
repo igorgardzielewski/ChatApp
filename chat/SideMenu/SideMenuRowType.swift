@@ -9,7 +9,6 @@ import Foundation
 enum SideMenuRowType: Int, CaseIterable{
     case home = 0
     case profile
-    
     var title: String{
         switch self {
         case .home:

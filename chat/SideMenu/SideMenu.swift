@@ -18,7 +18,7 @@ struct SideMenu: View {
                     .opacity(0.3)
                     .ignoresSafeArea()
                     .onTapGesture {
-                        isShowing.toggle()
+                            isShowing.toggle()
                     }
                 content
                     .transition(edgeTransition)
